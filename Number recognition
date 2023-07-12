@@ -1,0 +1,86 @@
+import keras
+from keras.datasets import mnist
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Flatten
+from keras.layers import Conv2D, MaxPooling2D
+import numpy as np
+import pandas as pd
+     
+
+# Load the MNIST dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+     
+
+# Preparing data
+x_train = x_train.astype('float32') / 255.0
+x_test = x_test.astype('float32') / 255.0
+x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
+x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
+input_shape = (28, 28, 1)
+num_classes = 10
+y_train = keras.utils.to_categorical(y_train, num_classes)
+y_test = keras.utils.to_categorical(y_test, num_classes)
+     
+
+# Building neural network
+model = Sequential()
+model.add(Conv2D(32, kernel_size=(3, 3),
+                 activation='relu',
+                 input_shape=input_shape))
+model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+model.add(Flatten())
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(num_classes, activation='softmax'))
+     
+
+# Compiling the model
+model.compile(loss=keras.losses.categorical_crossentropy,
+              optimizer=keras.optimizers.Adadelta(),
+              metrics=['accuracy'])
+
+     
+
+# Training the model
+model.fit(x_train, y_train,
+          batch_size=128,
+          epochs=12,
+          verbose=1,
+          validation_data=(x_test, y_test))
+     
+Epoch 1/12
+469/469 [==============================] - 110s 234ms/step - loss: 2.2876 - accuracy: 0.1552 - val_loss: 2.2525 - val_accuracy: 0.3326
+Epoch 2/12
+469/469 [==============================] - 111s 236ms/step - loss: 2.2305 - accuracy: 0.2757 - val_loss: 2.1826 - val_accuracy: 0.4358
+Epoch 3/12
+469/469 [==============================] - 110s 235ms/step - loss: 2.1564 - accuracy: 0.3676 - val_loss: 2.0859 - val_accuracy: 0.5349
+Epoch 4/12
+469/469 [==============================] - 110s 235ms/step - loss: 2.0544 - accuracy: 0.4345 - val_loss: 1.9543 - val_accuracy: 0.5970
+Epoch 5/12
+469/469 [==============================] - 109s 232ms/step - loss: 1.9196 - accuracy: 0.4879 - val_loss: 1.7830 - val_accuracy: 0.6441
+Epoch 6/12
+469/469 [==============================] - 110s 235ms/step - loss: 1.7553 - accuracy: 0.5361 - val_loss: 1.5787 - val_accuracy: 0.6971
+Epoch 7/12
+469/469 [==============================] - 109s 232ms/step - loss: 1.5775 - accuracy: 0.5755 - val_loss: 1.3653 - val_accuracy: 0.7352
+Epoch 8/12
+469/469 [==============================] - 110s 234ms/step - loss: 1.4080 - accuracy: 0.6098 - val_loss: 1.1728 - val_accuracy: 0.7663
+Epoch 9/12
+469/469 [==============================] - 110s 235ms/step - loss: 1.2669 - accuracy: 0.6377 - val_loss: 1.0166 - val_accuracy: 0.7914
+Epoch 10/12
+469/469 [==============================] - 108s 231ms/step - loss: 1.1542 - accuracy: 0.6609 - val_loss: 0.8958 - val_accuracy: 0.8102
+Epoch 11/12
+469/469 [==============================] - 108s 230ms/step - loss: 1.0619 - accuracy: 0.6801 - val_loss: 0.8037 - val_accuracy: 0.8242
+Epoch 12/12
+469/469 [==============================] - 108s 231ms/step - loss: 0.9874 - accuracy: 0.7007 - val_loss: 0.7323 - val_accuracy: 0.8343
+<keras.callbacks.History at 0x7efc321e0bb0>
+
+# Evaluatimg the performance of the model
+score = model.evaluate(x_test, y_test, verbose=0)
+print('Test loss:', score[0]*100)
+print('Test accuracy:', score[1]*100)
+
+     
+Test loss: 73.22929501533508
+Test accuracy: 83.42999815940857
